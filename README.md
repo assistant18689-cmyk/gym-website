@@ -49,3 +49,26 @@ This project was built to practice front-end web development and create a profes
 ## 👨‍💻 Author
 
 GitHub: https://github.com/assistant18689-cmyk
+
+
+## 📸 Screenshots
+
+### Home Page
+
+![Home](screenshots/home.png)
+
+### Membership Plans
+
+![Membership](screenshots/membership.png)
+
+### BMI Calculator
+
+![BMI Calculator](screenshots/bmi.png)
+
+### Trainers
+
+![Trainers](screenshots/trainer.png)
+
+### contact
+
+![Trainers](screenshots/contact.png)
