@@ -3,940 +3,1183 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stillness — Type with the Philosophers</title>
+<title>Forge Fitness — Train Different</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Oswald:wght@400;500;600;700&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
-  :root{
-    --bg-top:#EEF3FA;
-    --bg-bottom:#E1EAF4;
-    --ink:#1C2B3A;
-    --ink-soft:#4B5C6E;
-    --muted:#93A6B9;
-    --muted-2:#C4D0DD;
-    --accent:#5A7FB5;
-    --accent-deep:#2F4A73;
-    --correct:#3E6B5A;
-    --error:#B15550;
-    --card:rgba(255,255,255,0.62);
-    --card-border:rgba(255,255,255,0.9);
-    --shadow: 0 20px 60px -25px rgba(28,43,58,0.25);
-  }
+/* ============ TOKENS ============ */
+:root{
+  --black:#0a0707;
+  --charcoal:#150f0f;
+  --charcoal-2:#1e1616;
+  --charcoal-3:#2a2020;
+  --steel:#3d3230;
+  --crimson:#b81f34;
+  --crimson-deep:#7a1524;
+  --ember:#ff5a36;
+  --ember-light:#ff9466;
+  --text:#f3e9e4;
+  --text-dim:#a9948e;
+  --text-faint:#6e5c58;
+  --font-display:'Anton', sans-serif;
+  --font-body:'Work Sans', sans-serif;
+  --font-mono:'Oswald', sans-serif;
+  --radius:2px;
+}
 
-  *{box-sizing:border-box; margin:0; padding:0;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  background:var(--black);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;}
+}
 
-  html,body{height:100%;}
+img{max-width:100%;display:block;}
+a{color:inherit;text-decoration:none;}
+ul{list-style:none;}
+button{font-family:inherit;cursor:pointer;border:none;}
+input,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--ember); outline-offset:3px;}
 
-  body{
-    font-family:'Inter', sans-serif;
-    color:var(--ink);
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, #F7FAFD 0%, transparent 60%),
-      linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
-    min-height:100vh;
-    -webkit-font-smoothing:antialiased;
-    display:flex;
-    flex-direction:column;
-  }
+.container{max-width:1200px;margin:0 auto;padding:0 24px;}
+.eyebrow{
+  font-family:var(--font-mono);
+  text-transform:uppercase;
+  letter-spacing:.28em;
+  font-size:12.5px;
+  color:var(--ember);
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:16px;
+}
+.eyebrow::before{content:'';width:26px;height:2px;background:var(--ember);display:inline-block;}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:400;letter-spacing:.01em;line-height:1.05;text-transform:uppercase;}
+.section-title{font-size:clamp(32px,5vw,54px);margin-bottom:18px;}
+.section-sub{color:var(--text-dim);max-width:600px;font-size:16.5px;font-weight:300;}
+.section-head{margin-bottom:56px;}
+.section-head.center{text-align:center;margin-left:auto;margin-right:auto;}
+.section-head.center .section-sub{margin-left:auto;margin-right:auto;}
+section{padding:110px 0;position:relative;}
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
 
-  ::selection{ background: var(--accent); color:#fff; }
+/* ============ LOADER ============ */
+#loader{
+  position:fixed;inset:0;background:var(--black);z-index:10000;
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;
+  transition:opacity .7s ease, visibility .7s ease;
+}
+#loader.hide{opacity:0;visibility:hidden;}
+.anvil-spark{position:relative;width:90px;height:90px;}
+.anvil-spark svg{width:100%;height:100%;}
+.spark-bar{
+  fill:none;stroke:var(--ember);stroke-width:6;stroke-linecap:round;
+  stroke-dasharray:220;stroke-dashoffset:220;
+  animation:strike 1.4s ease-in-out infinite;
+  filter:drop-shadow(0 0 8px var(--ember));
+}
+@keyframes strike{
+  0%{stroke-dashoffset:220;}
+  50%{stroke-dashoffset:0;}
+  100%{stroke-dashoffset:-220;}
+}
+.loader-text{font-family:var(--font-mono);letter-spacing:.35em;text-transform:uppercase;font-size:13px;color:var(--text-dim);}
+.loader-text span{color:var(--ember);}
 
-  a{ color:inherit; }
+/* ============ NAV ============ */
+header{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  background:rgba(10,7,7,0);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+  transition:background .35s ease, border-color .35s ease, backdrop-filter .35s ease;
+}
+header.scrolled{background:rgba(10,7,7,0.92);backdrop-filter:blur(10px);border-color:rgba(255,255,255,0.08);}
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;max-width:1200px;margin:0 auto;}
+.logo{font-family:var(--font-display);font-size:24px;letter-spacing:.03em;text-transform:uppercase;}
+.logo em{font-style:normal;color:var(--ember);}
+.nav-links{display:flex;gap:34px;align-items:center;}
+.nav-links a{
+  font-family:var(--font-mono);font-size:13px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--text-dim);position:relative;padding:6px 0;transition:color .25s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--ember);transition:width .3s;
+}
+.nav-links a:hover,.nav-links a.active{color:var(--text);}
+.nav-links a.active::after,.nav-links a:hover::after{width:100%;}
+.nav-cta{
+  font-family:var(--font-mono);font-size:12.5px;text-transform:uppercase;letter-spacing:.1em;
+  background:var(--crimson);color:#fff;padding:11px 22px;border-radius:var(--radius);font-weight:600;
+  transition:background .25s, transform .25s;
+}
+.nav-cta:hover{background:var(--ember);transform:translateY(-1px);}
+.burger{display:none;flex-direction:column;gap:5px;background:none;}
+.burger span{width:24px;height:2px;background:var(--text);}
+.mobile-menu{
+  display:none;position:fixed;top:68px;left:0;right:0;background:var(--charcoal);z-index:899;
+  flex-direction:column;padding:20px 24px 30px;border-bottom:1px solid var(--steel);
+}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{padding:12px 0;font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);border-bottom:1px solid rgba(255,255,255,.05);}
 
-  /* ---------- Header ---------- */
-  header{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:32px 56px;
-    max-width:1200px;
-    margin:0 auto;
-    width:100%;
-  }
+@media(max-width:900px){
+  .nav-links,.nav-cta{display:none;}
+  .burger{display:flex;}
+}
 
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
+/* ============ HERO ============ */
+.hero{
+  min-height:100vh;display:flex;align-items:center;position:relative;
+  padding-top:120px;padding-bottom:80px;
+  background:
+    radial-gradient(ellipse 60% 50% at 80% 20%, rgba(184,31,52,.28), transparent 60%),
+    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(255,90,54,.14), transparent 60%),
+    linear-gradient(180deg, #0a0707 0%, #120c0c 100%);
+  overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background-image:repeating-linear-gradient(115deg, rgba(255,255,255,0.015) 0 2px, transparent 2px 40px);
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:2;text-align:center;max-width:900px;margin:0 auto;padding:0 24px;}
+.hero-eyebrow{
+  font-family:var(--font-mono);letter-spacing:.4em;font-size:12.5px;color:var(--ember);
+  text-transform:uppercase;margin-bottom:26px;font-weight:600;
+  opacity:0;animation:riseIn .8s .1s ease forwards;
+}
+.hero h1{
+  font-size:clamp(46px,9vw,108px);line-height:.94;margin-bottom:26px;
+  background:linear-gradient(180deg,#fff 0%, #fbe5da 40%, var(--ember-light) 75%, var(--ember) 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  text-shadow:0 0 60px rgba(255,90,54,.25);
+  opacity:0;animation:riseIn .9s .25s ease forwards;
+}
+.hero-desc{
+  font-size:18px;color:var(--text-dim);font-weight:300;max-width:560px;margin:0 auto 40px;
+  opacity:0;animation:riseIn .9s .4s ease forwards;
+}
+.hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:78px;
+  opacity:0;animation:riseIn .9s .55s ease forwards;
+}
+@keyframes riseIn{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
 
-  .brand-mark{
-    width:22px; height:22px; border-radius:50%;
-    background: radial-gradient(circle at 35% 30%, #ffffff, var(--accent) 70%);
-    box-shadow: 0 0 18px rgba(90,127,181,0.55);
-  }
+.btn{
+  font-family:var(--font-mono);font-size:13.5px;text-transform:uppercase;letter-spacing:.12em;font-weight:600;
+  padding:16px 32px;border-radius:var(--radius);transition:all .28s ease;display:inline-flex;align-items:center;gap:10px;
+}
+.btn-primary{
+  background:linear-gradient(95deg, var(--crimson), var(--ember));color:#fff;
+  box-shadow:0 8px 24px -8px rgba(255,90,54,.55);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px rgba(255,90,54,.75);}
+.btn-ghost{
+  background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.22);
+}
+.btn-ghost:hover{border-color:var(--ember);color:var(--ember-light);background:rgba(255,90,54,.06);}
 
-  .brand-name{
-    font-family:'Newsreader', serif;
-    font-style:italic;
-    font-weight:500;
-    font-size:22px;
-    letter-spacing:0.01em;
-  }
+/* pricing cards in hero */
+.pricing{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+  opacity:0;animation:riseIn .9s .7s ease forwards;
+}
+.plan{
+  background:linear-gradient(180deg, var(--charcoal-2), var(--charcoal));
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:6px;padding:30px 24px;text-align:left;position:relative;overflow:hidden;
+  transition:transform .3s ease, border-color .3s ease;
+}
+.plan:hover{transform:translateY(-6px);border-color:rgba(255,90,54,.4);}
+.plan.featured{border-color:var(--ember);background:linear-gradient(180deg, #221515, #170f0f);}
+.plan.featured::before{
+  content:'MOST POPULAR';position:absolute;top:14px;right:-32px;background:var(--ember);color:#1a0e0a;
+  font-family:var(--font-mono);font-size:10px;font-weight:700;letter-spacing:.1em;
+  padding:4px 36px;transform:rotate(35deg);
+}
+.plan-name{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.14em;font-size:13px;color:var(--text-dim);margin-bottom:10px;}
+.plan-price{font-family:var(--font-display);font-size:36px;color:var(--text);margin-bottom:4px;}
+.plan-price span{font-family:var(--font-body);font-size:14px;color:var(--text-faint);font-weight:400;text-transform:none;}
+.plan-feats{margin:18px 0 22px;display:flex;flex-direction:column;gap:9px;}
+.plan-feats li{font-size:13.5px;color:var(--text-dim);display:flex;gap:8px;align-items:flex-start;}
+.plan-feats li i{color:var(--ember);margin-top:3px;font-size:11px;}
+.plan-btn{
+  width:100%;text-align:center;justify-content:center;padding:12px;font-size:12.5px;
+  background:rgba(255,255,255,.06);color:var(--text);
+}
+.plan-btn:hover{background:var(--ember);color:#1a0e0a;}
+@media(max-width:800px){.pricing{grid-template-columns:1fr;}}
 
-  nav{ display:flex; gap:8px; }
+/* ============ ABOUT ============ */
+.about{background:var(--charcoal);}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;}
+.about-visual{position:relative;aspect-ratio:4/5;border-radius:6px;overflow:hidden;
+  background:linear-gradient(160deg, var(--charcoal-3), var(--black));
+  border:1px solid rgba(255,255,255,.06);
+}
+.about-visual img{width:100%;height:100%;object-fit:cover;opacity:.85;filter:saturate(1.05) contrast(1.05);}
+.about-visual::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg, transparent 40%, rgba(10,7,7,.85));}
+.about-badge{
+  position:absolute;bottom:24px;left:24px;right:24px;z-index:2;
+  background:rgba(10,7,7,.55);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.1);
+  border-radius:6px;padding:18px 20px;display:flex;gap:18px;
+}
+.about-badge .num{font-family:var(--font-display);font-size:34px;color:var(--ember);}
+.about-badge .lbl{font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-dim);}
+.about-copy p{color:var(--text-dim);font-weight:300;font-size:16px;margin-bottom:20px;}
+.about-pillars{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:32px;}
+.pillar{padding:20px;border-left:2px solid var(--ember);background:rgba(255,255,255,.02);}
+.pillar i{color:var(--ember);font-size:20px;margin-bottom:10px;display:block;}
+.pillar h4{font-family:var(--font-mono);font-size:14px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:600;}
+.pillar p{font-size:13.5px;color:var(--text-dim);font-weight:300;}
+@media(max-width:860px){.about-grid{grid-template-columns:1fr;gap:44px;} .about-pillars{grid-template-columns:1fr;}}
 
-  .nav-btn{
-    font-family:'Inter', sans-serif;
-    font-size:14px;
-    font-weight:500;
-    color:var(--ink-soft);
-    background:transparent;
-    border:none;
-    padding:10px 18px;
-    border-radius:999px;
-    cursor:pointer;
-    transition: all .25s ease;
-    letter-spacing:0.01em;
-  }
-  .nav-btn:hover{ color:var(--ink); background:rgba(255,255,255,0.5); }
-  .nav-btn.active{ color:#fff; background:var(--accent-deep); box-shadow: var(--shadow); }
+/* stat counters strip */
+.stats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:20px;margin-top:90px;
+  border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);padding:44px 0;
+}
+.stat{text-align:center;}
+.stat .count{font-family:var(--font-display);font-size:clamp(34px,5vw,52px);color:var(--text);
+  background:linear-gradient(180deg,#fff,var(--ember-light));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.stat .stat-label{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-top:6px;}
+@media(max-width:700px){.stats-strip{grid-template-columns:1fr 1fr;}}
 
-  main{
-    flex:1;
-    max-width:1200px;
-    margin:0 auto;
-    width:100%;
-    padding:20px 56px 100px;
-  }
+/* ============ SERVICES ============ */
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+.service-card{
+  background:linear-gradient(160deg, var(--charcoal-2), var(--charcoal));
+  border:1px solid rgba(255,255,255,.06);border-radius:6px;padding:34px 28px;
+  transition:transform .3s ease, border-color .3s ease, box-shadow .3s ease;position:relative;overflow:hidden;
+}
+.service-card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .35s;
+  background:radial-gradient(circle at 30% 20%, rgba(255,90,54,.14), transparent 60%);
+}
+.service-card:hover{transform:translateY(-8px);border-color:rgba(255,90,54,.35);box-shadow:0 20px 40px -20px rgba(0,0,0,.6);}
+.service-card:hover::before{opacity:1;}
+.service-icon{font-size:34px;margin-bottom:20px;display:inline-block;}
+.service-card h3{font-family:var(--font-display);font-size:21px;margin-bottom:10px;letter-spacing:.02em;}
+.service-card p{color:var(--text-dim);font-size:14.5px;font-weight:300;}
+@media(max-width:900px){.services-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.services-grid{grid-template-columns:1fr;}}
 
-  .view{ display:none; animation: fadeIn .5s ease; }
-  .view.active{ display:block; }
+/* ============ TRAINERS ============ */
+.trainers{background:var(--charcoal);}
+.trainers-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;}
+.trainer-card{
+  background:linear-gradient(180deg, var(--charcoal-3), var(--charcoal-2));
+  border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:30px 22px;text-align:center;
+  transition:transform .3s, border-color .3s;
+}
+.trainer-card:hover{transform:translateY(-6px);border-color:rgba(255,90,54,.35);}
+.avatar{
+  width:96px;height:96px;border-radius:50%;margin:0 auto 20px;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  background:conic-gradient(from 180deg, var(--crimson), var(--ember), var(--crimson-deep), var(--crimson));
+  animation:spin-slow 8s linear infinite;
+}
+.avatar::before{
+  content:'';position:absolute;inset:4px;border-radius:50%;background:var(--charcoal-3);
+}
+.avatar-inner{
+  position:relative;z-index:2;font-family:var(--font-display);font-size:26px;color:var(--text);
+  animation:spin-slow-rev 8s linear infinite;
+}
+@keyframes spin-slow{to{transform:rotate(360deg);}}
+@keyframes spin-slow-rev{to{transform:rotate(-360deg);}}
+.trainer-card:hover .avatar{animation-duration:2.4s;}
+.trainer-card h4{font-family:var(--font-display);font-size:19px;margin-bottom:4px;letter-spacing:.02em;}
+.trainer-spec{color:var(--ember-light);font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.trainer-exp{color:var(--text-dim);font-size:13.5px;font-weight:300;}
+@media(max-width:900px){.trainers-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:500px){.trainers-grid{grid-template-columns:1fr;}}
 
-  @keyframes fadeIn{ from{ opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+/* ============ SCHEDULE ============ */
+.schedule-wrap{
+  background:linear-gradient(160deg, var(--charcoal-2), var(--charcoal));
+  border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;
+}
+table.schedule{width:100%;border-collapse:collapse;}
+.schedule th{
+  font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;font-size:12px;
+  color:var(--text-dim);text-align:left;padding:18px 26px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.08);
+}
+.schedule td{padding:18px 26px;border-bottom:1px solid rgba(255,255,255,.05);font-size:15px;}
+.schedule tr:last-child td{border-bottom:none;}
+.schedule tr{transition:background .25s;}
+.schedule tr:hover{background:rgba(255,90,54,.05);}
+.time-cell{font-family:var(--font-mono);color:var(--ember-light);font-weight:600;letter-spacing:.04em;white-space:nowrap;width:120px;}
+.tag{
+  display:inline-block;padding:5px 13px;border-radius:20px;font-family:var(--font-mono);font-size:11.5px;
+  text-transform:uppercase;letter-spacing:.06em;font-weight:600;
+}
+.tag-yoga{background:rgba(255,148,102,.12);color:#ff9466;}
+.tag-cross{background:rgba(184,31,52,.16);color:#ff6b7a;}
+.tag-strength{background:rgba(255,90,54,.14);color:var(--ember-light);}
+.tag-zumba{background:rgba(255,214,102,.13);color:#ffd666;}
+.tag-cardio{background:rgba(102,209,255,.12);color:#7fd4ff;}
+.tag-boxing{background:rgba(184,31,52,.2);color:#ff8fa0;}
+@media(max-width:640px){.schedule th:nth-child(3),.schedule td:nth-child(3){display:none;}
+  .schedule th,.schedule td{padding:14px 16px;}}
 
-  /* ---------- Type View ---------- */
+/* ============ TESTIMONIALS SLIDER ============ */
+.testi-wrap{position:relative;max-width:780px;margin:0 auto;}
+.testi-track{overflow:hidden;border-radius:10px;}
+.testi-slides{display:flex;transition:transform .55s cubic-bezier(.65,0,.35,1);}
+.testi-slide{min-width:100%;padding:50px 56px;text-align:center;
+  background:linear-gradient(160deg, var(--charcoal-2), var(--charcoal));
+  border:1px solid rgba(255,255,255,.07);
+}
+.testi-quote{font-size:20px;font-weight:300;color:var(--text);font-style:italic;margin-bottom:26px;line-height:1.6;}
+.testi-stars{color:var(--ember);margin-bottom:18px;font-size:14px;letter-spacing:3px;}
+.testi-avatar{
+  width:52px;height:52px;border-radius:50%;margin:0 auto 12px;
+  background:linear-gradient(140deg,var(--crimson),var(--ember));
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:18px;
+}
+.testi-name{font-family:var(--font-mono);font-weight:600;letter-spacing:.04em;font-size:14.5px;}
+.testi-role{font-size:12.5px;color:var(--text-dim);margin-top:2px;}
+.testi-nav{display:flex;justify-content:center;gap:14px;margin-top:28px;align-items:center;}
+.testi-arrow{
+  width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);
+  display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .25s;
+}
+.testi-arrow:hover{background:var(--ember);border-color:var(--ember);color:#1a0e0a;}
+.testi-dots{display:flex;gap:8px;}
+.testi-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.18);transition:all .3s;cursor:pointer;}
+.testi-dot.active{background:var(--ember);width:22px;border-radius:5px;}
+@media(max-width:640px){.testi-slide{padding:36px 26px;}}
 
-  .hero-line{
-    text-align:center;
-    font-family:'Newsreader', serif;
-    font-style:italic;
-    font-weight:400;
-    font-size:17px;
-    color:var(--ink-soft);
-    max-width:520px;
-    margin:8px auto 40px;
-    line-height:1.6;
-  }
+/* ============ GALLERY ============ */
+.gallery-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:180px;gap:14px;
+}
+.gallery-grid .g-item:nth-child(1){grid-column:span 2;grid-row:span 2;}
+.gallery-grid .g-item:nth-child(5){grid-column:span 2;}
+.g-item{
+  position:relative;border-radius:6px;overflow:hidden;cursor:pointer;background:var(--charcoal-2);
+}
+.g-item img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease, filter .5s ease;filter:saturate(1.05) brightness(.92);}
+.g-item:hover img{transform:scale(1.08);filter:saturate(1.15) brightness(1.02);}
+.g-overlay{
+  position:absolute;inset:0;background:linear-gradient(180deg, transparent 50%, rgba(10,7,7,.85));
+  display:flex;align-items:flex-end;padding:16px;opacity:0;transition:opacity .35s;
+}
+.g-item:hover .g-overlay{opacity:1;}
+.g-overlay span{font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--text);}
+.g-overlay i{margin-left:auto;color:var(--ember);}
+@media(max-width:900px){.gallery-grid{grid-template-columns:repeat(2,1fr);} .gallery-grid .g-item:nth-child(1){grid-column:span 2;}}
 
-  .controls{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:14px;
-    margin-bottom:56px;
-    flex-wrap:wrap;
-  }
+/* lightbox */
+.lightbox{
+  position:fixed;inset:0;background:rgba(6,4,4,.94);z-index:9500;
+  display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .35s, visibility .35s;
+  padding:40px;
+}
+.lightbox.open{opacity:1;visibility:visible;}
+.lightbox img{max-width:min(900px,90vw);max-height:82vh;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+.lightbox-close,.lightbox-prev,.lightbox-next{
+  position:absolute;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#fff;
+  width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .25s;
+}
+.lightbox-close{top:26px;right:26px;}
+.lightbox-prev{left:26px;top:50%;transform:translateY(-50%);}
+.lightbox-next{right:26px;top:50%;transform:translateY(-50%);}
+.lightbox-close:hover,.lightbox-prev:hover,.lightbox-next:hover{background:var(--ember);border-color:var(--ember);color:#1a0e0a;}
+.lightbox-caption{
+  position:absolute;bottom:30px;left:0;right:0;text-align:center;font-family:var(--font-mono);
+  letter-spacing:.1em;text-transform:uppercase;font-size:12.5px;color:var(--text-dim);
+}
+@media(max-width:640px){.lightbox-prev,.lightbox-next{width:38px;height:38px;} .lightbox{padding:16px;}}
 
-  .mode-group{
-    display:flex;
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:999px;
-    padding:5px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-  }
+/* ============ BMI CALCULATOR ============ */
+.bmi{background:var(--charcoal);}
+.bmi-card{
+  max-width:900px;margin:0 auto;background:linear-gradient(150deg, var(--charcoal-3), var(--charcoal-2));
+  border:1px solid rgba(255,255,255,.07);border-radius:12px;padding:50px;display:grid;grid-template-columns:1fr 1fr;gap:50px;
+}
+.bmi-form label{
+  display:block;font-family:var(--font-mono);font-size:12px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--text-dim);margin-bottom:8px;margin-top:20px;
+}
+.bmi-form label:first-child{margin-top:0;}
+.bmi-form input[type=number],.bmi-form input[type=range]{width:100%;}
+.bmi-form input[type=number]{
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:var(--text);
+  padding:12px 14px;border-radius:6px;font-size:16px;
+}
+.bmi-form input[type=number]:focus{border-color:var(--ember);}
+.bmi-btn{margin-top:28px;width:100%;justify-content:center;text-align:center;}
+.bmi-result{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
+.bmi-ring{position:relative;width:170px;height:170px;margin-bottom:20px;}
+.bmi-ring svg{transform:rotate(-90deg);width:100%;height:100%;}
+.bmi-ring circle{fill:none;stroke-width:10;}
+.bmi-ring .bg{stroke:rgba(255,255,255,.08);}
+.bmi-ring .fg{stroke:var(--ember);stroke-linecap:round;transition:stroke-dashoffset 1s ease, stroke .4s;}
+.bmi-value{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.bmi-value .num{font-family:var(--font-display);font-size:38px;}
+.bmi-value .lbl{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--text-dim);}
+.bmi-category{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;font-size:14px;font-weight:600;margin-bottom:6px;}
+.bmi-note{font-size:13px;color:var(--text-dim);font-weight:300;max-width:280px;}
+@media(max-width:760px){.bmi-card{grid-template-columns:1fr;padding:32px 26px;}}
 
-  .mode-btn{
-    border:none;
-    background:transparent;
-    font-family:'Inter', sans-serif;
-    font-size:14px;
-    font-weight:600;
-    color:var(--ink-soft);
-    padding:11px 22px;
-    border-radius:999px;
-    cursor:pointer;
-    transition: all .25s ease;
-  }
-  .mode-btn.selected{ background:var(--accent-deep); color:#fff; }
-  .mode-btn:hover:not(.selected){ color:var(--ink); }
+/* ============ FAQ ============ */
+.faq-list{max-width:800px;margin:0 auto;}
+.faq-item{border-bottom:1px solid rgba(255,255,255,.08);}
+.faq-q{
+  width:100%;text-align:left;background:none;color:var(--text);padding:24px 4px;
+  display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);
+  font-size:16px;letter-spacing:.01em;gap:20px;
+}
+.faq-q i{color:var(--ember);transition:transform .3s;flex-shrink:0;}
+.faq-item.open .faq-q i{transform:rotate(45deg);}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease;}
+.faq-a p{padding:0 4px 24px;color:var(--text-dim);font-weight:300;font-size:15px;max-width:640px;}
 
-  .start-btn{
-    font-family:'Inter', sans-serif;
-    font-weight:600;
-    font-size:14px;
-    color:#fff;
-    background:linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
-    border:none;
-    padding:13px 30px;
-    border-radius:999px;
-    cursor:pointer;
-    box-shadow: 0 12px 30px -12px rgba(47,74,115,0.55);
-    transition: transform .2s ease, box-shadow .2s ease;
-    letter-spacing:0.01em;
-  }
-  .start-btn:hover{ transform:translateY(-1px); box-shadow: 0 16px 34px -12px rgba(47,74,115,0.65); }
-  .start-btn:active{ transform:translateY(0); }
+/* ============ CONTACT ============ */
+.contact{background:var(--charcoal);}
+.contact-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:50px;}
+.contact-info-item{display:flex;gap:16px;margin-bottom:26px;}
+.contact-info-item i{
+  width:44px;height:44px;border-radius:50%;background:rgba(255,90,54,.1);color:var(--ember);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;
+}
+.contact-info-item h4{font-family:var(--font-mono);font-size:13.5px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+.contact-info-item p{color:var(--text-dim);font-size:14.5px;font-weight:300;}
+.map-embed{border-radius:10px;overflow:hidden;margin-top:10px;border:1px solid rgba(255,255,255,.08);filter:grayscale(.3) contrast(1.1) invert(.92);}
+.map-embed iframe{width:100%;height:230px;border:0;display:block;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.form-grid .full{grid-column:1/-1;}
+.contact-form label{
+  display:block;font-family:var(--font-mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--text-dim);margin-bottom:8px;
+}
+.contact-form input,.contact-form textarea{
+  width:100%;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:var(--text);
+  padding:13px 14px;border-radius:6px;font-size:14.5px;transition:border-color .25s;
+}
+.contact-form input:focus,.contact-form textarea:focus{border-color:var(--ember);}
+.contact-form textarea{resize:vertical;min-height:110px;}
+.contact-form button{margin-top:6px;}
+.form-msg{font-family:var(--font-mono);font-size:13px;margin-top:14px;color:var(--ember-light);display:none;}
+.form-msg.show{display:block;}
+@media(max-width:860px){.contact-grid{grid-template-columns:1fr;} .form-grid{grid-template-columns:1fr;}}
 
-  /* Moon progress + live stats */
-  .session-bar{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:36px;
-    margin-bottom:44px;
-    opacity:0;
-    height:0;
-    overflow:hidden;
-    transition: opacity .4s ease;
-  }
-  .session-bar.show{ opacity:1; height:auto; overflow:visible; margin-bottom:44px; }
+/* ============ FOOTER ============ */
+footer{background:var(--black);border-top:1px solid rgba(255,255,255,.06);padding:64px 0 30px;}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:50px;}
+.footer-brand p{color:var(--text-dim);font-size:14px;font-weight:300;margin:16px 0 20px;max-width:280px;}
+.social-row{display:flex;gap:12px;}
+.social-row a{
+  width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.12);
+  display:flex;align-items:center;justify-content:center;transition:all .25s;color:var(--text-dim);
+}
+.social-row a:hover{background:var(--ember);border-color:var(--ember);color:#1a0e0a;transform:translateY(-3px);}
+.footer-col h5{font-family:var(--font-mono);text-transform:uppercase;letter-spacing:.1em;font-size:12.5px;color:var(--text);margin-bottom:18px;}
+.footer-col a{display:block;color:var(--text-dim);font-size:14px;font-weight:300;margin-bottom:12px;transition:color .2s;}
+.footer-col a:hover{color:var(--ember-light);}
+.footer-bottom{
+  border-top:1px solid rgba(255,255,255,.06);padding-top:26px;display:flex;justify-content:space-between;
+  flex-wrap:wrap;gap:12px;font-size:13px;color:var(--text-faint);font-family:var(--font-mono);letter-spacing:.02em;
+}
+@media(max-width:800px){.footer-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:520px){.footer-grid{grid-template-columns:1fr;}}
 
-  .moon{
-    width:46px; height:46px;
-    border-radius:50%;
-    position:relative;
-    background: linear-gradient(160deg, #263B52 0%, #14202E 100%);
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.4), 0 0 22px rgba(90,127,181,0.35);
-    overflow:hidden;
-    flex-shrink:0;
-  }
-  .moon-fill{
-    position:absolute; inset:0;
-    background: radial-gradient(circle at 35% 30%, #FFFFFF 0%, #DCE7F5 60%, #B9CBE0 100%);
-    clip-path: circle(0% at 50% 50%);
-    transition: clip-path .3s linear;
-  }
+/* ============ REVEAL ON SCROLL ============ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease, transform .7s ease;}
+.reveal.in{opacity:1;transform:translateY(0);}
 
-  .live-stats{
-    display:flex;
-    gap:28px;
-    font-family:'Inter', sans-serif;
-  }
-  .live-stat{ text-align:center; }
-  .live-stat .num{ font-size:22px; font-weight:700; color:var(--ink); font-variant-numeric: tabular-nums; }
-  .live-stat .lbl{ font-size:11px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-top:2px; }
+/* back to top */
+.to-top{
+  position:fixed;bottom:28px;right:28px;width:48px;height:48px;border-radius:50%;background:var(--ember);
+  color:#1a0e0a;display:flex;align-items:center;justify-content:center;z-index:500;
+  opacity:0;visibility:hidden;transform:translateY(10px);transition:all .3s;box-shadow:0 10px 24px -6px rgba(255,90,54,.5);
+}
+.to-top.show{opacity:1;visibility:visible;transform:translateY(0);}
 
-  /* Typing stage */
-  .stage{
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:28px;
-    padding:64px 72px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(16px);
-    min-height:220px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    position:relative;
-    overflow:hidden;
-  }
+/* ============ SCHEDULE HORIZONTAL SAFETY NET ============ */
+.schedule-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table.schedule{min-width:520px;}
 
-  .quote-text{
-    font-family:'Newsreader', serif;
-    font-size:29px;
-    line-height:1.75;
-    text-align:center;
-    max-width:780px;
-    width:100%;
-    min-width:0;
-    letter-spacing:0.005em;
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-  }
-
-  .quote-text span{ transition: color .08s ease; }
-  .char-pending{ color:var(--muted-2); }
-  .char-correct{ color:var(--ink); }
-  .char-incorrect{ color:var(--error); text-decoration: underline; text-decoration-color: rgba(177,85,80,0.5); }
-  .char-current{ position:relative; }
-  .char-current::before{
-    content:'';
-    position:absolute;
-    left:-1px; top:2px; bottom:2px;
-    width:2px;
-    background:var(--accent);
-    animation: blink 1s step-end infinite;
-  }
-  @keyframes blink{ 50%{ opacity:0; } }
-
-  .stage-hint{
-    position:absolute;
-    bottom:20px;
-    font-size:12px;
-    color:var(--muted);
-    letter-spacing:0.02em;
-  }
-
-  .idle-note{
-    font-family:'Inter', sans-serif;
-    font-size:14px;
-    color:var(--muted);
-    text-align:center;
-  }
-
-  /* ---------- Results ---------- */
-  .results-wrap{ display:none; }
-  .results-wrap.show{ display:block; animation: fadeIn .5s ease; }
-
-  .results-stats{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap:16px;
-    max-width:760px;
-    margin:0 auto 48px;
-  }
-
-  .stat-card{
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:20px;
-    padding:26px 20px;
-    text-align:center;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-  }
-  .stat-card .num{ font-family:'Newsreader', serif; font-size:38px; font-weight:500; color:var(--accent-deep); }
-  .stat-card .lbl{ margin-top:6px; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
-
-  .passages-heading{
-    text-align:center;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.12em;
-    color:var(--muted);
-    margin-bottom:22px;
-  }
-
-  .passage-card{
-    max-width:680px;
-    margin:0 auto 18px;
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:20px;
-    padding:28px 34px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-  }
-  .passage-quote{
-    font-family:'Newsreader', serif;
-    font-style:italic;
-    font-size:18px;
-    line-height:1.65;
-    color:var(--ink);
-  }
-  .passage-author{
-    margin-top:12px;
-    font-size:13px;
-    font-weight:600;
-    color:var(--accent-deep);
-    letter-spacing:0.02em;
-  }
-
-  .results-actions{
-    display:flex;
-    justify-content:center;
-    margin-top:40px;
-  }
-
-  /* ---------- Dashboard ---------- */
-  .dash-grid{
-    display:grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap:18px;
-    margin-bottom:52px;
-  }
-
-  .dash-card{
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:20px;
-    padding:30px 22px;
-    text-align:center;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-  }
-  .dash-card .num{ font-family:'Newsreader', serif; font-size:40px; font-weight:500; color:var(--accent-deep); font-variant-numeric: tabular-nums; }
-  .dash-card .lbl{ margin-top:8px; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); }
-
-  .history-heading{
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.12em;
-    color:var(--muted);
-    margin-bottom:18px;
-  }
-
-  .history-list{
-    background:var(--card);
-    border:1px solid var(--card-border);
-    border-radius:20px;
-    box-shadow: var(--shadow);
-    backdrop-filter: blur(12px);
-    overflow:hidden;
-  }
-  .history-row{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:16px 28px;
-    border-bottom:1px solid rgba(28,43,58,0.06);
-    font-size:14px;
-  }
-  .history-row:last-child{ border-bottom:none; }
-  .history-row .mode-tag{
-    font-size:11px;
-    font-weight:600;
-    color:var(--accent-deep);
-    background:rgba(90,127,181,0.12);
-    padding:4px 10px;
-    border-radius:999px;
-    letter-spacing:0.02em;
-  }
-  .history-row .h-metrics{ display:flex; gap:22px; color:var(--ink-soft); }
-  .history-row .h-date{ color:var(--muted); font-size:12px; }
-
-  .empty-state{
-    text-align:center;
-    padding:60px 20px;
-    color:var(--muted);
-    font-size:14px;
-  }
-
-  .reset-row{
-    text-align:center;
-    margin-top:40px;
-  }
-  .reset-link{
-    font-size:12px;
-    color:var(--muted);
-    background:none;
-    border:none;
-    cursor:pointer;
-    text-decoration:underline;
-    letter-spacing:0.02em;
-  }
-  .reset-link:hover{ color:var(--error); }
-
-  footer{
-    text-align:center;
-    padding:30px;
-    font-size:12px;
-    color:var(--muted);
-    letter-spacing:0.02em;
-  }
-
-  @media (max-width: 720px){
-    header{ padding:24px 22px; flex-direction:column; gap:16px; }
-    main{ padding:10px 22px 80px; }
-    .stage{ padding:44px 26px; }
-    .quote-text{ font-size:22px; }
-    .results-stats{ grid-template-columns: repeat(2,1fr); gap:10px; }
-    .dash-grid{ grid-template-columns: repeat(2,1fr); }
-    .stat-card .num, .dash-card .num{ font-size:28px; }
-    .passage-card{ padding:22px 20px; }
-  }
+/* ============ GLOBAL SMALL-SCREEN TUNING ============ */
+@media(max-width:640px){
+  section{padding:72px 0;}
+  .container{padding:0 18px;}
+  nav{padding:16px 18px;}
+  .section-title{font-size:clamp(28px,8vw,38px);}
+  .section-head{margin-bottom:38px;}
+  .hero{padding-top:96px;padding-bottom:50px;}
+  .hero-desc{font-size:15.5px;}
+  .hero-btns{gap:12px;}
+  .btn{padding:14px 22px;font-size:12.5px;}
+  .plan{padding:24px 20px;}
+  .plan-price{font-size:30px;}
+  .about-badge{flex-direction:row;padding:14px 16px;gap:12px;}
+  .about-badge .num{font-size:26px;}
+  .stats-strip{padding:30px 0;gap:24px 16px;}
+  .service-card{padding:26px 22px;}
+  .bmi-card{padding:28px 20px;gap:34px;}
+  .bmi-ring{width:150px;height:150px;}
+  .contact-info-item{gap:12px;}
+  .gallery-grid{gap:10px;grid-auto-rows:130px;}
+  .lightbox{padding:14px;}
+  .lightbox-prev,.lightbox-next{width:36px;height:36px;}
+  .lightbox-close{width:36px;height:36px;top:14px;right:14px;}
+  .footer-grid{gap:32px;}
+}
+@media(max-width:400px){
+  .hero-btns{flex-direction:column;align-items:stretch;}
+  .hero-btns .btn{justify-content:center;}
+  .plan-feats li{font-size:13px;}
+}
 </style>
 </head>
 <body>
 
-<header>
-  <div class="brand">
-    <span class="brand-mark"></span>
-    <span class="brand-name">Stillness</span>
+<div class="grain"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="anvil-spark">
+    <svg viewBox="0 0 100 100">
+      <path class="spark-bar" d="M20,80 L35,50 L50,65 L80,20" />
+    </svg>
   </div>
+  <div class="loader-text">FORGE<span>FITNESS</span></div>
+</div>
+
+<!-- NAV -->
+<header id="siteHeader">
   <nav>
-    <button class="nav-btn active" data-view="type">Type</button>
-    <button class="nav-btn" data-view="dashboard">Dashboard</button>
+    <a href="#home" class="logo">FORGE<em>FITNESS</em></a>
+    <div class="nav-links" id="navLinks">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#trainers">Trainers</a>
+      <a href="#schedule">Schedule</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <a href="#pricing" class="btn nav-cta">Join Now</a>
+    <button class="burger" id="burgerBtn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
   </nav>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#trainers">Trainers</a>
+    <a href="#schedule">Schedule</a>
+    <a href="#gallery">Gallery</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact</a>
+    <a href="#pricing">Join Now</a>
+  </div>
 </header>
 
-<main>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-inner">
+    <div class="hero-eyebrow">Lucknow's Hardest Working Gym</div>
+    <h1>FORGE YOUR<br>STRONGEST SELF</h1>
+    <p class="hero-desc">No shortcuts, no gimmicks — just certified coaching, real equipment, and a community that shows up. Your transformation starts on the floor, not on a screen.</p>
+    <div class="hero-btns">
+      <a href="#contact" class="btn btn-primary"><i class="fa-solid fa-fire"></i> Join Now</a>
+      <a href="#pricing" class="btn btn-ghost">View Plans</a>
+    </div>
+    <div class="pricing" id="pricing">
+      <div class="plan">
+        <div class="plan-name">Basic</div>
+        <div class="plan-price">₹999 <span>/ month</span></div>
+        <ul class="plan-feats">
+          <li><i class="fa-solid fa-check"></i> Full gym floor access</li>
+          <li><i class="fa-solid fa-check"></i> Locker & shower access</li>
+          <li><i class="fa-solid fa-check"></i> Standard class timings</li>
+        </ul>
+        <a href="#contact" class="btn plan-btn">Choose Basic</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-name">Standard</div>
+        <div class="plan-price">₹1999 <span>/ month</span></div>
+        <ul class="plan-feats">
+          <li><i class="fa-solid fa-check"></i> Everything in Basic</li>
+          <li><i class="fa-solid fa-check"></i> All group classes</li>
+          <li><i class="fa-solid fa-check"></i> Monthly progress check-in</li>
+          <li><i class="fa-solid fa-check"></i> Nutrition guidance</li>
+        </ul>
+        <a href="#contact" class="btn plan-btn">Choose Standard</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Premium</div>
+        <div class="plan-price">₹2999 <span>/ month</span></div>
+        <ul class="plan-feats">
+          <li><i class="fa-solid fa-check"></i> Everything in Standard</li>
+          <li><i class="fa-solid fa-check"></i> 1-on-1 personal training</li>
+          <li><i class="fa-solid fa-check"></i> Custom diet plan</li>
+          <li><i class="fa-solid fa-check"></i> Priority class booking</li>
+        </ul>
+        <a href="#contact" class="btn plan-btn">Choose Premium</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-  <!-- TYPE VIEW -->
-  <section class="view active" id="view-type">
-
-    <div id="pre-session">
-      <p class="hero-line">Borrow a little stillness from those who thought before you. Choose your time, and begin.</p>
-
-      <div class="controls">
-        <div class="mode-group" id="mode-group">
-          <button class="mode-btn selected" data-mode="30">30s</button>
-          <button class="mode-btn" data-mode="60">1 min</button>
-          <button class="mode-btn" data-mode="300">5 min</button>
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="container">
+    <div class="about-grid reveal">
+      <div class="about-visual">
+        <img src="https://images.pexels.com/photos/7031706/pexels-photo-7031706.jpeg?auto=compress&cs=tinysrgb&w=1000" alt="Inside Forge Fitness gym floor" loading="lazy">
+        <div class="about-badge">
+          <div class="num">9+</div>
+          <div class="lbl">Years Building<br>Stronger Bodies</div>
         </div>
-        <button class="start-btn" id="start-btn">Begin typing</button>
+      </div>
+      <div class="about-copy">
+        <div class="eyebrow">Who We Are</div>
+        <h2 class="section-title">Built On Grit,<br>Run On Results</h2>
+        <p>Forge Fitness opened its doors nine years ago with one simple idea: fitness should be honest. No fads, no empty promises — just proven training methods, real equipment, and coaches who actually know what they're doing.</p>
+        <p>Our mission is simple — help every member walk in stronger than they walked out, one honest session at a time, in a space where beginners and lifters train side by side without judgement.</p>
+        <div class="about-pillars">
+          <div class="pillar">
+            <i class="fa-solid fa-certificate"></i>
+            <h4>Certified Trainers</h4>
+            <p>Every coach on our floor is certified in-house before they touch a client program.</p>
+          </div>
+          <div class="pillar">
+            <i class="fa-solid fa-people-group"></i>
+            <h4>Friendly Environment</h4>
+            <p>A judgement-free floor where first-timers and competitive lifters train together.</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="session-bar" id="session-bar">
-      <div class="moon"><div class="moon-fill" id="moon-fill"></div></div>
-      <div class="live-stats">
-        <div class="live-stat"><div class="num" id="live-time">0:30</div><div class="lbl">Time</div></div>
-        <div class="live-stat"><div class="num" id="live-wpm">0</div><div class="lbl">WPM</div></div>
-        <div class="live-stat"><div class="num" id="live-acc">100%</div><div class="lbl">Accuracy</div></div>
+    <div class="stats-strip reveal">
+      <div class="stat"><div class="count" data-target="3200">0</div><div class="stat-label">Members Joined</div></div>
+      <div class="stat"><div class="count" data-target="9">0</div><div class="stat-label">Years Running</div></div>
+      <div class="stat"><div class="count" data-target="14">0</div><div class="stat-label">Certified Trainers</div></div>
+      <div class="stat"><div class="count" data-target="40">0</div><div class="stat-label">Classes / Week</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">What We Offer</div>
+      <h2 class="section-title">Services</h2>
+      <p class="section-sub">Every discipline you need under one roof — pick a lane or mix it up.</p>
+    </div>
+    <div class="services-grid reveal">
+      <div class="service-card"><span class="service-icon">💪</span><h3>Strength Training</h3><p>Barbells, racks and free weights with programming built around real progressive overload.</p></div>
+      <div class="service-card"><span class="service-icon">🏋️</span><h3>Personal Training</h3><p>One-on-one coaching tailored to your goals, schedule and current fitness level.</p></div>
+      <div class="service-card"><span class="service-icon">🤸</span><h3>Yoga</h3><p>Mobility, breathwork and recovery sessions to balance out the heavy training days.</p></div>
+      <div class="service-card"><span class="service-icon">🚴</span><h3>Cardio</h3><p>Bikes, rowers and HIIT circuits for conditioning, endurance and fat loss.</p></div>
+      <div class="service-card"><span class="service-icon">🥊</span><h3>Boxing</h3><p>Bag work, pad rounds and technique drills that double as a serious full-body workout.</p></div>
+      <div class="service-card"><span class="service-icon">🥗</span><h3>Nutrition Guidance</h3><p>Practical, sustainable eating plans that actually fit your lifestyle and goals.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRAINERS -->
+<section class="trainers" id="trainers">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Meet The Floor</div>
+      <h2 class="section-title">Our Trainers</h2>
+      <p class="section-sub">Certified in-house, battle-tested on the floor.</p>
+    </div>
+    <div class="trainers-grid reveal">
+      <div class="trainer-card">
+        <div class="avatar"><span class="avatar-inner">RK</span></div>
+        <h4>Rohan Kapoor</h4>
+        <div class="trainer-spec">Strength &amp; Powerlifting</div>
+        <div class="trainer-exp">10 years experience</div>
+      </div>
+      <div class="trainer-card">
+        <div class="avatar"><span class="avatar-inner">AS</span></div>
+        <h4>Ananya Sharma</h4>
+        <div class="trainer-spec">Yoga &amp; Mobility</div>
+        <div class="trainer-exp">7 years experience</div>
+      </div>
+      <div class="trainer-card">
+        <div class="avatar"><span class="avatar-inner">VM</span></div>
+        <h4>Vikram Mehta</h4>
+        <div class="trainer-spec">Boxing &amp; Conditioning</div>
+        <div class="trainer-exp">8 years experience</div>
+      </div>
+      <div class="trainer-card">
+        <div class="avatar"><span class="avatar-inner">PN</span></div>
+        <h4>Priya Nair</h4>
+        <div class="trainer-spec">Nutrition &amp; Fat Loss</div>
+        <div class="trainer-exp">6 years experience</div>
       </div>
     </div>
+  </div>
+</section>
 
-    <div class="stage" id="stage">
-      <div class="idle-note" id="idle-note">Your passage will appear here once you begin. Just start typing — no need to click anything first.</div>
-      <div class="quote-text" id="quote-text" style="display:none;"></div>
-      <div class="stage-hint" id="stage-hint" style="display:none;">Backspace to correct a mistake</div>
+<!-- SCHEDULE -->
+<section id="schedule">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Plan Your Week</div>
+      <h2 class="section-title">Class Schedule</h2>
+      <p class="section-sub">Drop in whenever suits you — every class is open to all membership tiers.</p>
     </div>
-
-    <!-- RESULTS -->
-    <div class="results-wrap" id="results-wrap">
-      <div class="results-stats">
-        <div class="stat-card"><div class="num" id="res-wpm">0</div><div class="lbl">Words / min</div></div>
-        <div class="stat-card"><div class="num" id="res-acc">0%</div><div class="lbl">Accuracy</div></div>
-        <div class="stat-card"><div class="num" id="res-incorrect">0</div><div class="lbl">Incorrect words</div></div>
-        <div class="stat-card"><div class="num" id="res-time">0</div><div class="lbl">Time</div></div>
+    <div class="schedule-wrap reveal">
+      <div class="schedule-scroll">
+      <table class="schedule">
+        <thead><tr><th>Time</th><th>Class</th><th>Focus</th></tr></thead>
+        <tbody>
+          <tr><td class="time-cell">6:00 AM</td><td><span class="tag tag-yoga">Yoga</span></td><td>Mobility &amp; breathwork</td></tr>
+          <tr><td class="time-cell">8:00 AM</td><td><span class="tag tag-cross">CrossFit</span></td><td>Full-body conditioning</td></tr>
+          <tr><td class="time-cell">11:00 AM</td><td><span class="tag tag-cardio">Cardio Blast</span></td><td>Bikes, rowers &amp; HIIT</td></tr>
+          <tr><td class="time-cell">5:00 PM</td><td><span class="tag tag-strength">Strength Training</span></td><td>Barbell &amp; free weights</td></tr>
+          <tr><td class="time-cell">6:30 PM</td><td><span class="tag tag-boxing">Boxing</span></td><td>Bag work &amp; pad rounds</td></tr>
+          <tr><td class="time-cell">7:00 PM</td><td><span class="tag tag-zumba">Zumba</span></td><td>High-energy dance cardio</td></tr>
+        </tbody>
+      </table>
       </div>
+    </div>
+  </div>
+</section>
 
-      <div class="passages-heading">Passages you practiced</div>
-      <div id="passages-list"></div>
-
-      <div class="results-actions">
-        <button class="start-btn" id="again-btn">Type again</button>
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Member Stories</div>
+      <h2 class="section-title">Testimonials</h2>
+    </div>
+    <div class="testi-wrap reveal">
+      <div class="testi-track">
+        <div class="testi-slides" id="testiSlides">
+          <div class="testi-slide">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">Nine months at Forge and I've lost 14kg without a single crash diet. The trainers actually check your form instead of just counting reps.</p>
+            <div class="testi-avatar">AK</div>
+            <div class="testi-name">Aditya Khanna</div>
+            <div class="testi-role">Standard Member, 9 months</div>
+          </div>
+          <div class="testi-slide">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">The boxing sessions with Vikram are brutal in the best way. First gym where I've actually looked forward to leg day.</p>
+            <div class="testi-avatar">SR</div>
+            <div class="testi-name">Sneha Rao</div>
+            <div class="testi-role">Premium Member, 1.5 years</div>
+          </div>
+          <div class="testi-slide">
+            <div class="testi-stars">★★★★★</div>
+            <p class="testi-quote">Walked in knowing nothing about lifting. The staff never made me feel out of place — now I'm hitting PRs every month.</p>
+            <div class="testi-avatar">MG</div>
+            <div class="testi-name">Manish Gupta</div>
+            <div class="testi-role">Basic Member, 5 months</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-nav">
+        <button class="testi-arrow" id="testiPrev" aria-label="Previous testimonial"><i class="fa-solid fa-chevron-left"></i></button>
+        <div class="testi-dots" id="testiDots"></div>
+        <button class="testi-arrow" id="testiNext" aria-label="Next testimonial"><i class="fa-solid fa-chevron-right"></i></button>
       </div>
     </div>
+  </div>
+</section>
 
-  </section>
-
-  <!-- DASHBOARD VIEW -->
-  <section class="view" id="view-dashboard">
-    <div class="dash-grid">
-      <div class="dash-card"><div class="num" id="dash-best">0</div><div class="lbl">Best WPM</div></div>
-      <div class="dash-card"><div class="num" id="dash-avg">0</div><div class="lbl">Average WPM</div></div>
-      <div class="dash-card"><div class="num" id="dash-sessions">0</div><div class="lbl">Sessions</div></div>
-      <div class="dash-card"><div class="num" id="dash-accuracy">0%</div><div class="lbl">Average accuracy</div></div>
+<!-- GALLERY -->
+<section class="gallery" id="gallery">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Inside The Gym</div>
+      <h2 class="section-title">Gallery</h2>
+      <p class="section-sub">A look at the floor, the equipment and the energy.</p>
     </div>
-
-    <div class="history-heading">Recent sessions</div>
-    <div class="history-list" id="history-list">
-      <div class="empty-state">Nothing here yet — your sessions will show up once you start typing.</div>
+    <div class="gallery-grid reveal" id="galleryGrid">
+      <div class="g-item" data-caption="The main training floor">
+        <img src="https://images.pexels.com/photos/9545914/pexels-photo-9545914.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Main training floor" loading="lazy">
+        <div class="g-overlay"><span>Training Floor</span><i class="fa-solid fa-expand"></i></div>
+      </div>
+      <div class="g-item" data-caption="Free weights section">
+        <img src="https://images.pexels.com/photos/6389513/pexels-photo-6389513.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Free weights rack" loading="lazy">
+        <div class="g-overlay"><span>Free Weights</span><i class="fa-solid fa-expand"></i></div>
+      </div>
+      <div class="g-item" data-caption="Boxing and bag work corner">
+        <img src="https://images.pexels.com/photos/8611297/pexels-photo-8611297.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Boxing area" loading="lazy">
+        <div class="g-overlay"><span>Boxing Corner</span><i class="fa-solid fa-expand"></i></div>
+      </div>
+      <div class="g-item" data-caption="Group class in session">
+        <img src="https://images.pexels.com/photos/3984361/pexels-photo-3984361.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Group class" loading="lazy">
+        <div class="g-overlay"><span>Group Class</span><i class="fa-solid fa-expand"></i></div>
+      </div>
+      <div class="g-item" data-caption="Cardio and conditioning zone">
+        <img src="https://images.pexels.com/photos/7031705/pexels-photo-7031705.jpeg?auto=compress&cs=tinysrgb&w=1200" alt="Cardio zone" loading="lazy">
+        <div class="g-overlay"><span>Cardio Zone</span><i class="fa-solid fa-expand"></i></div>
+      </div>
+      <div class="g-item" data-caption="Yoga and mobility studio">
+        <img src="https://images.pexels.com/photos/8436639/pexels-photo-8436639.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Yoga studio" loading="lazy">
+        <div class="g-overlay"><span>Yoga Studio</span><i class="fa-solid fa-expand"></i></div>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="reset-row">
-      <button class="reset-link" id="reset-btn">Clear my saved progress</button>
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" id="lightboxClose" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+  <button class="lightbox-prev" id="lightboxPrev" aria-label="Previous"><i class="fa-solid fa-chevron-left"></i></button>
+  <img id="lightboxImg" src="" alt="">
+  <button class="lightbox-next" id="lightboxNext" aria-label="Next"><i class="fa-solid fa-chevron-right"></i></button>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
+
+<!-- BMI CALCULATOR -->
+<section class="bmi" id="bmi">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Know Your Numbers</div>
+      <h2 class="section-title">BMI Calculator</h2>
+      <p class="section-sub">A quick starting point — not a diagnosis. Talk to our trainers for a full assessment.</p>
     </div>
-  </section>
+    <div class="bmi-card reveal">
+      <div class="bmi-form">
+        <label for="bmiHeight">Height (cm)</label>
+        <input type="number" id="bmiHeight" placeholder="e.g. 170" min="80" max="250">
+        <label for="bmiWeight">Weight (kg)</label>
+        <input type="number" id="bmiWeight" placeholder="e.g. 68" min="20" max="300">
+        <button class="btn btn-primary bmi-btn" id="bmiCalcBtn"><i class="fa-solid fa-calculator"></i> Calculate BMI</button>
+      </div>
+      <div class="bmi-result">
+        <div class="bmi-ring">
+          <svg viewBox="0 0 120 120">
+            <circle class="bg" cx="60" cy="60" r="52"></circle>
+            <circle class="fg" id="bmiRing" cx="60" cy="60" r="52" stroke-dasharray="327" stroke-dashoffset="327"></circle>
+          </svg>
+          <div class="bmi-value"><span class="num" id="bmiNum">--</span><span class="lbl">BMI</span></div>
+        </div>
+        <div class="bmi-category" id="bmiCategory">Enter your details</div>
+        <div class="bmi-note" id="bmiNote">Fill in your height and weight to see where you stand.</div>
+      </div>
+    </div>
+  </div>
+</section>
 
-</main>
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Good To Know</div>
+      <h2 class="section-title">FAQ</h2>
+    </div>
+    <div class="faq-list reveal" id="faqList">
+      <div class="faq-item">
+        <button class="faq-q">Is there a free trial? <i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a"><p>Yes — we offer a free single-day trial pass so you can check out the floor, meet the trainers and try a class before joining.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">What are your opening hours? <i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a"><p>We're open every day from 5:00 AM to 10:00 PM, including weekends and most public holidays.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Do you have personal trainers? <i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a"><p>Yes, our in-house certified trainers offer one-on-one sessions — included by default with the Premium plan, or bookable separately on other plans.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q">Is parking available? <i class="fa-solid fa-plus"></i></button>
+        <div class="faq-a"><p>Yes, free parking is available for all members directly outside the gym, with additional overflow parking a short walk away.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
 
-<footer>Stillness · practice typing, one thought at a time</footer>
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="container">
+    <div class="section-head center reveal">
+      <div class="eyebrow" style="justify-content:center;">Get In Touch</div>
+      <h2 class="section-title">Visit Or Reach Out</h2>
+    </div>
+    <div class="contact-grid reveal">
+      <div class="contact-info">
+        <div class="contact-info-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <div><h4>Address</h4><p>12 Hazratganj Main Road, Lucknow, Uttar Pradesh 226001</p></div>
+        </div>
+        <div class="contact-info-item">
+          <i class="fa-solid fa-phone"></i>
+          <div><h4>Phone</h4><p>+91 98765 43210</p></div>
+        </div>
+        <div class="contact-info-item">
+          <i class="fa-solid fa-envelope"></i>
+          <div><h4>Email</h4><p>hello@forgefitness.in</p></div>
+        </div>
+        <div class="map-embed">
+          <iframe src="https://www.google.com/maps?q=Hazratganj,Lucknow,Uttar+Pradesh&output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Forge Fitness location map"></iframe>
+        </div>
+      </div>
+      <form class="contact-form" id="contactForm">
+        <div class="form-grid">
+          <div><label for="cfName">Name</label><input type="text" id="cfName" required></div>
+          <div><label for="cfPhone">Phone</label><input type="tel" id="cfPhone" required></div>
+          <div class="full"><label for="cfEmail">Email</label><input type="email" id="cfEmail" required></div>
+          <div class="full"><label for="cfMsg">Message</label><textarea id="cfMsg" required placeholder="Tell us your fitness goals..."></textarea></div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="margin-top:22px;"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+        <div class="form-msg" id="formMsg">Thanks — we'll get back to you within 24 hours.</div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#home" class="logo">FORGE<em>FITNESS</em></a>
+        <p>Nine years of honest coaching, real equipment and a community that trains together, in the heart of Lucknow.</p>
+        <div class="social-row">
+          <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+          <a href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Quick Links</h5>
+        <a href="#about">About Us</a>
+        <a href="#services">Services</a>
+        <a href="#trainers">Trainers</a>
+        <a href="#schedule">Schedule</a>
+      </div>
+      <div class="footer-col">
+        <h5>More</h5>
+        <a href="#gallery">Gallery</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+        <a href="#pricing">Membership</a>
+      </div>
+      <div class="footer-col">
+        <h5>Contact</h5>
+        <a href="tel:+919876543210">+91 98765 43210</a>
+        <a href="mailto:hello@forgefitness.in">hello@forgefitness.in</a>
+        <a href="#contact">Hazratganj, Lucknow</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; <span id="year"></span> Forge Fitness. All rights reserved.</span>
+      <span>Train different.</span>
+    </div>
+  </div>
+</footer>
+
+<button class="to-top" id="toTop" aria-label="Back to top"><i class="fa-solid fa-arrow-up"></i></button>
 
 <script>
-(function(){
+document.getElementById('year').textContent = new Date().getFullYear();
 
-  /* ---------------- Content pools ---------------- */
-
-  const mediumQuotes = [
-    { author: "Ashtavakra", text: "You are not the body, nor is the body yours to claim. You are neither the doer of any action nor the one who tastes its fruit. You are pure, silent awareness itself, the quiet witness watching every thought and feeling rise and fall without ever being touched by them." },
-    { author: "Ashtavakra", text: "Only one thing truly binds a person, and that is the endless craving for pleasure. The moment that craving loosens its grip, freedom is no longer something distant to search for, because it was quietly present all along, waiting beneath the noise of desire." },
-    { author: "Buddha", text: "What we think, in time, we slowly become. Every experience we call our own begins first as a passing thought, and with our thoughts, gently and without our noticing, we shape the entire world we later walk through and call real." },
-    { author: "Buddha", text: "Holding onto anger for very long is much like drinking poison yourself while quietly expecting somebody else, somewhere far away, to be the one who eventually suffers for it. Let it go, and notice how quickly the mind settles into stillness again." },
-    { author: "Buddha", text: "Peace is never something to be hunted for out in the world, because nothing external was ever built to hand it to you. It waits patiently within, ready the instant you stop searching everywhere else and finally turn your attention inward." },
-    { author: "Socrates", text: "An unexamined life, lived without ever questioning your own beliefs, is hardly worth living at all, for such a person merely repeats whatever opinions happen to be handed down to them, mistaking borrowed thoughts for wisdom they never earned themselves." },
-    { author: "Socrates", text: "I know that I know nothing certain, and strangely enough, it is exactly this honest admission that makes me a little wiser than those who walk through life assuming, quite comfortably, that they already understand everything worth understanding." },
-    { author: "Socrates", text: "Be, in quiet and ordinary ways, as you wish others to eventually see you, because the strongest reputation is never announced loudly. It is built slowly, almost invisibly, through many small honest choices repeated across many unremarkable days." },
-    { author: "Plato", text: "The beginning is always the most important part of any undertaking, because whatever is learned first tends to sink the deepest, quietly shaping the habits, instincts, and character that will define everything a person goes on to do." },
-    { author: "Plato", text: "Wise people generally speak only because they have something worth saying, carefully chosen and considered. Fools, on the other hand, speak simply because they cannot bear the discomfort of silence, filling it with whatever comes first to mind." },
-    { author: "Aristotle", text: "We become what we repeatedly do, day after ordinary day, without much fanfare. Excellence, then, was never a single dramatic act performed once, but a quiet habit built slowly, almost invisibly, through years of small consistent choices." },
-    { author: "Aristotle", text: "Knowing yourself honestly is the true beginning of all wisdom, because a person who cannot clearly see their own nature will inevitably misjudge nearly everything else they encounter, from other people to the world itself." }
-  ];
-
-  const longQuotes = [
-    { author: "Ashtavakra", text: "You are not this body, and the body was never truly yours to keep. You are neither the one performing any action, nor the one who later enjoys or suffers its results, no matter how convincing that feeling seems in the moment. Beneath every role you play, every name you carry, and every emotion that rises and eventually fades, there remains something unchanged and untouched: a quiet, silent awareness simply watching it all unfold. Most people spend their whole lives searching for peace outside themselves, chasing one desire after another, never realizing that the very thing they seek is the awareness doing the seeking. Rest there, and everything else quietly settles on its own." },
-    { author: "Ashtavakra", text: "Only one thing truly binds a person to suffering, and that is the endless, restless craving for pleasure, chased again and again without ever being fully satisfied. The moment that craving finally loosens its grip, even slightly, freedom stops being some distant destination to search for far away. It was quietly present the entire time, waiting patiently beneath the noise and clutter of desire, unnoticed simply because attention was always pointed elsewhere. To rest in that quiet presence, even briefly, is to discover that nothing was ever truly missing, and nothing ever needed to be added, no matter how convincingly the mind insisted otherwise." },
-    { author: "Buddha", text: "What we think, we slowly become, though the process is so gradual that most people never notice it happening within themselves. Every experience we call our own life begins first as a fleeting thought passing quietly through the mind, and with our thoughts, again and again, we quietly construct the entire world we later insist is fixed and real. Anger held too long becomes a poison we drink ourselves while waiting for someone far away to suffer for it instead. Peace was never something to be found out in the world, no matter how far a person travels searching. It waits patiently within, ready the moment we finally turn our attention inward instead." },
-    { author: "Buddha", text: "Peace, the Buddha taught, is never something to be hunted for out in the wide world, no matter how far a person travels or how much they acquire along the way. It was never built to be handed over by anything external, however comforting that idea might feel in a difficult moment. It waits patiently within, quiet and unclaimed, ready the very instant a person stops searching everywhere else and finally turns their attention inward instead. This turning inward is rarely dramatic. It happens slowly, through ordinary stillness repeated often enough that the mind, so used to reaching outward, gradually learns another way of simply being." },
-    { author: "Socrates", text: "An unexamined life is hardly worth living, Socrates insisted, because a person who never pauses to question their own beliefs simply repeats whatever opinions happen to be handed down to them, generation after generation, mistaking familiarity for actual understanding. True wisdom, he argued, begins with an honest and sometimes uncomfortable admission: that we know far less than we assume we do. It is precisely this humility that separates the wise from the merely confident. Reputation, too, should never be chased loudly or performed for an audience. It is built quietly instead, almost invisibly, through countless small and ordinary choices repeated over many unremarkable days." },
-    { author: "Socrates", text: "I know that I know nothing certain, Socrates famously admitted, and strangely enough, it was exactly this honest confession that made him, in his own words, a little wiser than those who walked through life assuming, quite comfortably, that they already understood everything worth understanding. This was never meant as false modesty. It was a genuine starting point, an admission that opened the door to real questioning rather than closing it. Those who believe they have already arrived at understanding rarely think to ask another question, while those who admit their own uncertainty keep searching and keep quietly growing wiser with every honest conversation." },
-    { author: "Plato", text: "The beginning, Plato often reminded his students, is the most important part of any undertaking, for whatever is learned first tends to sink the deepest and quietly shapes the habits and character a person carries for the rest of their life. Wise people, he observed, generally speak only when they have something worth saying, weighing their words carefully before offering them. Fools, by contrast, speak simply because they cannot bear the discomfort of silence, filling empty space with whatever thought happens to arrive first. And at the touch of love, he wrote, everyone becomes something of a poet, because love quietly awakens a way of seeing that reason alone could never fully reach on its own." },
-    { author: "Plato", text: "Good people, Plato observed, do not need elaborate laws to tell them how to act responsibly toward others, because their own conscience already guides them toward fairness without being forced. Bad people, meanwhile, will always find some clever way around whatever laws are written, no matter how carefully worded or strictly enforced those laws might be. This is why character, quietly built over years, matters more in the end than any system of rules imposed from outside. A society full of honest, self-examined people needs far fewer laws than one that relies entirely on punishment and fear to keep its citizens in line." },
-    { author: "Aristotle", text: "We are, quite simply, what we repeatedly do, Aristotle argued, and excellence was therefore never meant to be a single dramatic act performed once and remembered forever. Instead, it is a quiet habit, built slowly and almost invisibly through years of small, consistent, and often unremarkable choices. Knowing oneself honestly, he believed, is the true beginning of all wisdom, since a person who cannot clearly see their own nature will inevitably misjudge nearly everything else they encounter in life. He also warned that educating the mind while neglecting the heart produces a person who may appear clever, yet remains, in every way that matters, fundamentally incomplete." },
-    { author: "Aristotle", text: "Aristotle believed that virtue was not something a person is simply born with, nor something that can be taught through words alone, but something built gradually through repeated action, much like a musician learns their instrument through years of daily, ordinary practice rather than a single burst of inspiration. A person becomes brave, he argued, by repeatedly performing brave acts, and becomes just by repeatedly acting justly, until eventually the behavior settles quietly into character itself. In this way, every small choice a person makes, however unremarkable it may seem in the moment, is quietly building the kind of person they are slowly becoming." }
-  ];
-
-  const shortQuotes = [
-    { author: "Franz Kafka", text: "Someone must have slandered him, for one morning, without having done anything wrong, he was arrested." },
-    { author: "Franz Kafka", text: "A cage went in search of a bird, and for a long moment neither one knew what to do with the other." },
-    { author: "Franz Kafka", text: "It is often safer to be in chains than to be free, for chains at least ask nothing of your courage." },
-    { author: "Franz Kafka", text: "He felt that he was losing control of things, losing hold of the past; his quiet life was slipping away." },
-    { author: "Franz Kafka", text: "There is infinite hope, but not for us, said the old man, and turned back toward the window." },
-    { author: "Fyodor Dostoevsky", text: "Above all, do not lie to yourself, for the man who lies to himself is often the first to take offense." },
-    { author: "Fyodor Dostoevsky", text: "Pain and suffering are always inevitable for a large intelligence and a deep heart, he thought, closing his eyes." },
-    { author: "Fyodor Dostoevsky", text: "The mystery of human existence lies not in staying alive, but in finding something worth living for." },
-    { author: "Fyodor Dostoevsky", text: "Man is a mystery that must be unraveled, and even a whole lifetime is not too long to spend on it." },
-    { author: "Fyodor Dostoevsky", text: "To go wrong in one's own way is better than to go right in someone else's, he muttered under his breath." },
-    { author: "Fyodor Dostoevsky", text: "Love a person even in their sin, for that faint reflection of love is a likeness of divine love itself." },
-    { author: "Franz Kafka", text: "In the fight between you and the world, hold the door open for the world, and let it teach you slowly." }
-  ];
-
-  /* ---------------- Storage ---------------- */
-
-  const STORAGE_KEY = "stillness_sessions_v1";
-  const USAGE_KEY = "stillness_usage_v1";
-  const MAX_USES = 3;
-
-  function loadSessions(){
-    try{ return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
-    catch(e){ return []; }
-  }
-  function saveSessions(list){
-    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }catch(e){}
-  }
-  function loadUsage(){
-    try{ return JSON.parse(localStorage.getItem(USAGE_KEY)) || {}; }
-    catch(e){ return {}; }
-  }
-  function saveUsage(u){
-    try{ localStorage.setItem(USAGE_KEY, JSON.stringify(u)); }catch(e){}
-  }
-
-  function quoteKey(q){ return q.author + "::" + q.text.slice(0,20); }
-
-  function pickQuote(pool, lastKey){
-    const usage = loadUsage();
-    let candidates = pool.filter(q => (usage[quoteKey(q)]||0) < MAX_USES && quoteKey(q) !== lastKey);
-    if(candidates.length === 0){
-      candidates = pool.filter(q => (usage[quoteKey(q)]||0) < MAX_USES);
+/* INTERNAL ANCHOR HANDLING — prevent real navigation, scroll in-page instead */
+document.addEventListener('click', function(e){
+  const link = e.target.closest('a[href^="#"]');
+  if(!link) return;
+  e.preventDefault();
+  const href = link.getAttribute('href');
+  if(href.length > 1){
+    const target = document.querySelector(href);
+    if(target){
+      target.scrollIntoView({behavior:'smooth', block:'start'});
+      history.replaceState(null, '', href);
     }
-    if(candidates.length === 0){
-      // everything exhausted — reset usage for this pool
-      pool.forEach(q => { usage[quoteKey(q)] = 0; });
-      saveUsage(usage);
-      candidates = pool.filter(q => quoteKey(q) !== lastKey);
-      if(candidates.length === 0) candidates = pool.slice();
-    }
-    const chosen = candidates[Math.floor(Math.random()*candidates.length)];
-    usage[quoteKey(chosen)] = (usage[quoteKey(chosen)]||0) + 1;
-    saveUsage(usage);
-    return chosen;
   }
+});
 
-  /* ---------------- Navigation ---------------- */
+/* LOADER */
+window.addEventListener('load', () => {
+  const loader = document.getElementById('loader');
+  setTimeout(() => loader.classList.add('hide'), 900);
+});
 
-  const navBtns = document.querySelectorAll(".nav-btn");
-  navBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      navBtns.forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
-      document.getElementById("view-" + btn.dataset.view).classList.add("active");
-      if(btn.dataset.view === "dashboard") renderDashboard();
-    });
+/* HEADER SCROLL STATE */
+const header = document.getElementById('siteHeader');
+const toTop = document.getElementById('toTop');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 40);
+  toTop.classList.toggle('show', window.scrollY > 500);
+});
+toTop.addEventListener('click', () => window.scrollTo({top:0, behavior:'smooth'}));
+
+/* MOBILE MENU */
+const burger = document.getElementById('burgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+burger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+/* ACTIVE NAV LINK ON SCROLL */
+const navA = document.querySelectorAll('.nav-links a');
+const sections = [...navA].map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+const navObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      const id = '#' + entry.target.id;
+      navA.forEach(a => a.classList.toggle('active', a.getAttribute('href') === id));
+    }
   });
+}, {rootMargin:'-45% 0px -45% 0px'});
+sections.forEach(s => navObserver.observe(s));
 
-  /* ---------------- Mode selection ---------------- */
-
-  let selectedMode = 30;
-  const modeBtns = document.querySelectorAll(".mode-btn");
-  modeBtns.forEach(btn => {
-    btn.addEventListener("click", () => {
-      modeBtns.forEach(b => b.classList.remove("selected"));
-      btn.classList.add("selected");
-      selectedMode = parseInt(btn.dataset.mode, 10);
-    });
-  });
-
-  /* ---------------- Typing session state ---------------- */
-
-  const els = {
-    preSession: document.getElementById("pre-session"),
-    startBtn: document.getElementById("start-btn"),
-    sessionBar: document.getElementById("session-bar"),
-    stage: document.getElementById("stage"),
-    idleNote: document.getElementById("idle-note"),
-    quoteText: document.getElementById("quote-text"),
-    stageHint: document.getElementById("stage-hint"),
-    liveTime: document.getElementById("live-time"),
-    liveWpm: document.getElementById("live-wpm"),
-    liveAcc: document.getElementById("live-acc"),
-    moonFill: document.getElementById("moon-fill"),
-    resultsWrap: document.getElementById("results-wrap"),
-    resWpm: document.getElementById("res-wpm"),
-    resAcc: document.getElementById("res-acc"),
-    resIncorrect: document.getElementById("res-incorrect"),
-    resTime: document.getElementById("res-time"),
-    passagesList: document.getElementById("passages-list"),
-    againBtn: document.getElementById("again-btn")
-  };
-
-  let session = null;
-
-  function formatTime(sec){
-    const m = Math.floor(sec/60);
-    const s = Math.floor(sec%60);
-    return m + ":" + String(s).padStart(2,"0");
-  }
-
-  function startSession(){
-    const pool = selectedMode === 30 ? shortQuotes : selectedMode === 60 ? mediumQuotes : longQuotes;
-
-    session = {
-      duration: selectedMode,
-      remaining: selectedMode,
-      pool: pool,
-      currentQuote: null,
-      lastKey: null,
-      charIndex: 0,
-      charStates: [],
-      correctTotal: 0,
-      incorrectTotal: 0,
-      incorrectWordsTotal: 0,
-      completed: [],
-      startedAt: Date.now(),
-      timerId: null,
-      ended: false
-    };
-
-    els.preSession.style.display = "none";
-    els.resultsWrap.classList.remove("show");
-    els.sessionBar.classList.add("show");
-    els.idleNote.style.display = "none";
-    els.quoteText.style.display = "block";
-    els.stageHint.style.display = "block";
-
-    loadNextQuote();
-    updateLiveStats();
-
-    els.liveTime.textContent = formatTime(session.remaining);
-
-    session.timerId = setInterval(tick, 200);
-    document.addEventListener("keydown", handleKeydown);
-  }
-
-  function loadNextQuote(){
-    const q = pickQuote(session.pool, session.lastKey);
-    session.currentQuote = q;
-    session.lastKey = quoteKey(q);
-    session.charIndex = 0;
-    session.charStates = new Array(q.text.length).fill("pending");
-    renderQuote();
-  }
-
-  function renderQuote(){
-    const text = session.currentQuote.text;
-    let html = "";
-    for(let i=0;i<text.length;i++){
-      let cls = "char-pending";
-      if(session.charStates[i] === "correct") cls = "char-correct";
-      else if(session.charStates[i] === "incorrect") cls = "char-incorrect";
-      if(i === session.charIndex) cls += " char-current";
-      const ch = text[i] === " " ? "&nbsp;" : escapeHtml(text[i]);
-      html += "<span class='" + cls + "'>" + ch + "</span>";
+/* SCROLL REVEAL */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      entry.target.classList.add('in');
+      revealObserver.unobserve(entry.target);
     }
-    els.quoteText.innerHTML = html;
-  }
+  });
+}, {threshold:0.12});
+revealEls.forEach(el => revealObserver.observe(el));
 
-  function escapeHtml(ch){
-    return ch.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
-  }
-
-  function countIncorrectWords(text, states){
-    let count = 0;
-    let i = 0;
-    while(i < text.length){
-      if(text[i] === " "){ i++; continue; }
-      const start = i;
-      while(i < text.length && text[i] !== " ") i++;
-      const end = i;
-      let allTyped = true;
-      let hasIncorrect = false;
-      for(let j=start;j<end;j++){
-        if(states[j] === "pending") allTyped = false;
-        if(states[j] === "incorrect") hasIncorrect = true;
+/* ANIMATED COUNTERS */
+const counters = document.querySelectorAll('.count');
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if(entry.isIntersecting){
+      const el = entry.target;
+      const target = +el.dataset.target;
+      const duration = 1600;
+      const start = performance.now();
+      function tick(now){
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target).toLocaleString('en-IN');
+        if(progress < 1) requestAnimationFrame(tick);
+        else el.textContent = target.toLocaleString('en-IN') + '+';
       }
-      if(allTyped && hasIncorrect) count++;
+      requestAnimationFrame(tick);
+      counterObserver.unobserve(el);
     }
-    return count;
-  }
-
-  function handleKeydown(e){
-    if(!session || session.ended) return;
-    if(e.key === "Backspace"){
-      e.preventDefault();
-      if(session.charIndex > 0){
-        session.charIndex--;
-        session.charStates[session.charIndex] = "pending";
-        renderQuote();
-      }
-      return;
-    }
-    if(e.key.length !== 1) return; // ignore control keys
-    e.preventDefault();
-
-    const text = session.currentQuote.text;
-    if(session.charIndex >= text.length) return;
-
-    const expected = text[session.charIndex];
-    if(e.key === expected){
-      session.charStates[session.charIndex] = "correct";
-      session.correctTotal++;
-    } else {
-      session.charStates[session.charIndex] = "incorrect";
-      session.incorrectTotal++;
-    }
-    session.charIndex++;
-    renderQuote();
-    updateLiveStats();
-
-    if(session.charIndex >= text.length){
-      session.incorrectWordsTotal += countIncorrectWords(text, session.charStates);
-      session.completed.push(session.currentQuote);
-      loadNextQuote();
-    }
-  }
-
-  function updateLiveStats(){
-    const elapsedMin = Math.max((session.duration - session.remaining), 1) / 60;
-    const wpm = Math.round((session.correctTotal/5) / elapsedMin);
-    const totalTyped = session.correctTotal + session.incorrectTotal;
-    const acc = totalTyped === 0 ? 100 : Math.round((session.correctTotal/totalTyped)*100);
-    els.liveWpm.textContent = isFinite(wpm) ? Math.max(wpm,0) : 0;
-    els.liveAcc.textContent = acc + "%";
-
-    const progress = 1 - (session.remaining / session.duration);
-    const radius = Math.min(75, Math.max(0, progress*75));
-    els.moonFill.style.clipPath = "circle(" + radius + "% at 50% 50%)";
-  }
-
-  function tick(){
-    session.remaining -= 0.2;
-    if(session.remaining <= 0){
-      session.remaining = 0;
-      els.liveTime.textContent = formatTime(0);
-      updateLiveStats();
-      endSession();
-      return;
-    }
-    els.liveTime.textContent = formatTime(session.remaining);
-    updateLiveStats();
-  }
-
-  function endSession(){
-    if(session.ended) return;
-    session.ended = true;
-    clearInterval(session.timerId);
-    document.removeEventListener("keydown", handleKeydown);
-
-    // if current quote partially typed, tally its incorrect words too, though it doesn't count as completed
-    session.incorrectWordsTotal += countIncorrectWords(session.currentQuote.text, session.charStates);
-
-    const elapsedMin = session.duration/60;
-    const wpm = Math.max(Math.round((session.correctTotal/5) / elapsedMin), 0);
-    const totalTyped = session.correctTotal + session.incorrectTotal;
-    const acc = totalTyped === 0 ? 100 : Math.round((session.correctTotal/totalTyped)*100);
-
-    // Save session
-    const sessions = loadSessions();
-    sessions.unshift({
-      date: new Date().toISOString(),
-      mode: session.duration,
-      wpm: wpm,
-      accuracy: acc
-    });
-    saveSessions(sessions.slice(0,200));
-
-    showResults(wpm, acc, session.incorrectWordsTotal);
-  }
-
-  function showResults(wpm, acc, incorrectWords){
-    els.sessionBar.classList.remove("show");
-    els.stage.style.display = "none";
-
-    els.resWpm.textContent = wpm;
-    els.resAcc.textContent = acc + "%";
-    els.resIncorrect.textContent = incorrectWords;
-    const durationLabel = session.duration === 30 ? "30s" : session.duration === 60 ? "1 min" : "5 min";
-    els.resTime.textContent = durationLabel;
-
-    els.passagesList.innerHTML = "";
-    const list = session.completed.length ? session.completed : [session.currentQuote];
-    list.forEach(q => {
-      const card = document.createElement("div");
-      card.className = "passage-card";
-      card.innerHTML = "<div class='passage-quote'>\u201C" + escapeHtml(q.text) + "\u201D</div><div class='passage-author'>\u2014 " + escapeHtml(q.author) + "</div>";
-      els.passagesList.appendChild(card);
-    });
-
-    els.resultsWrap.classList.add("show");
-  }
-
-  els.startBtn.addEventListener("click", startSession);
-
-  els.againBtn.addEventListener("click", () => {
-    els.resultsWrap.classList.remove("show");
-    els.stage.style.display = "flex";
-    els.quoteText.style.display = "none";
-    els.stageHint.style.display = "none";
-    els.idleNote.style.display = "block";
-    els.preSession.style.display = "block";
-    els.moonFill.style.clipPath = "circle(0% at 50% 50%)";
   });
+}, {threshold:0.4});
+counters.forEach(c => counterObserver.observe(c));
 
-  /* ---------------- Dashboard ---------------- */
+/* TESTIMONIAL SLIDER */
+const slidesWrap = document.getElementById('testiSlides');
+const slides = slidesWrap.children;
+const dotsWrap = document.getElementById('testiDots');
+let testiIndex = 0;
+for(let i=0;i<slides.length;i++){
+  const dot = document.createElement('div');
+  dot.className = 'testi-dot' + (i===0 ? ' active' : '');
+  dot.addEventListener('click', () => goToSlide(i));
+  dotsWrap.appendChild(dot);
+}
+function goToSlide(i){
+  testiIndex = (i + slides.length) % slides.length;
+  slidesWrap.style.transform = `translateX(-${testiIndex * 100}%)`;
+  [...dotsWrap.children].forEach((d,idx) => d.classList.toggle('active', idx===testiIndex));
+}
+document.getElementById('testiPrev').addEventListener('click', () => goToSlide(testiIndex - 1));
+document.getElementById('testiNext').addEventListener('click', () => goToSlide(testiIndex + 1));
+let testiTimer = setInterval(() => goToSlide(testiIndex + 1), 5500);
+document.querySelector('.testi-wrap').addEventListener('mouseenter', () => clearInterval(testiTimer));
+document.querySelector('.testi-wrap').addEventListener('mouseleave', () => { testiTimer = setInterval(() => goToSlide(testiIndex + 1), 5500); });
 
-  function renderDashboard(){
-    const sessions = loadSessions();
-    const bestWpm = sessions.reduce((m,s)=>Math.max(m,s.wpm),0);
-    const avgWpm = sessions.length ? Math.round(sessions.reduce((a,s)=>a+s.wpm,0)/sessions.length) : 0;
-    const avgAcc = sessions.length ? Math.round(sessions.reduce((a,s)=>a+s.accuracy,0)/sessions.length) : 0;
+/* GALLERY LIGHTBOX */
+const gItems = [...document.querySelectorAll('.g-item')];
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+let lbIndex = 0;
+function openLightbox(i){
+  lbIndex = i;
+  const item = gItems[lbIndex];
+  lightboxImg.src = item.querySelector('img').src.replace('w=800','w=1400').replace('w=1200','w=1600');
+  lightboxCaption.textContent = item.dataset.caption || '';
+  lightbox.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox(){
+  lightbox.classList.remove('open');
+  document.body.style.overflow = '';
+}
+gItems.forEach((item, i) => item.addEventListener('click', () => openLightbox(i)));
+document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+document.getElementById('lightboxPrev').addEventListener('click', () => openLightbox((lbIndex - 1 + gItems.length) % gItems.length));
+document.getElementById('lightboxNext').addEventListener('click', () => openLightbox((lbIndex + 1) % gItems.length));
+lightbox.addEventListener('click', (e) => { if(e.target === lightbox) closeLightbox(); });
+document.addEventListener('keydown', (e) => {
+  if(!lightbox.classList.contains('open')) return;
+  if(e.key === 'Escape') closeLightbox();
+  if(e.key === 'ArrowLeft') openLightbox((lbIndex - 1 + gItems.length) % gItems.length);
+  if(e.key === 'ArrowRight') openLightbox((lbIndex + 1) % gItems.length);
+});
 
-    document.getElementById("dash-best").textContent = bestWpm;
-    document.getElementById("dash-avg").textContent = avgWpm;
-    document.getElementById("dash-sessions").textContent = sessions.length;
-    document.getElementById("dash-accuracy").textContent = avgAcc + "%";
-
-    const historyEl = document.getElementById("history-list");
-    if(sessions.length === 0){
-      historyEl.innerHTML = "<div class='empty-state'>Nothing here yet — your sessions will show up once you start typing.</div>";
-      return;
-    }
-
-    historyEl.innerHTML = "";
-    sessions.slice(0,12).forEach(s => {
-      const row = document.createElement("div");
-      row.className = "history-row";
-      const modeLabel = s.mode === 30 ? "30s" : s.mode === 60 ? "1 min" : "5 min";
-      const d = new Date(s.date);
-      const dateLabel = d.toLocaleDateString(undefined, { month:"short", day:"numeric" }) + " · " + d.toLocaleTimeString(undefined, {hour:"2-digit", minute:"2-digit"});
-      row.innerHTML =
-        "<span class='mode-tag'>" + modeLabel + "</span>" +
-        "<span class='h-metrics'><span>" + s.wpm + " wpm</span><span>" + s.accuracy + "% acc</span></span>" +
-        "<span class='h-date'>" + dateLabel + "</span>";
-      historyEl.appendChild(row);
+/* FAQ ACCORDION */
+document.querySelectorAll('.faq-item').forEach(item => {
+  const q = item.querySelector('.faq-q');
+  const a = item.querySelector('.faq-a');
+  q.addEventListener('click', () => {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(other => {
+      other.classList.remove('open');
+      other.querySelector('.faq-a').style.maxHeight = null;
     });
-  }
-
-  const resetBtn = document.getElementById("reset-btn");
-  let resetArmed = false;
-  let resetArmTimeout = null;
-
-  resetBtn.addEventListener("click", () => {
-    if(!resetArmed){
-      resetArmed = true;
-      resetBtn.textContent = "Click again to confirm — this can't be undone";
-      resetBtn.style.color = "var(--error)";
-      resetArmTimeout = setTimeout(() => {
-        resetArmed = false;
-        resetBtn.textContent = "Clear my saved progress";
-        resetBtn.style.color = "";
-      }, 4000);
-      return;
+    if(!isOpen){
+      item.classList.add('open');
+      a.style.maxHeight = a.scrollHeight + 'px';
     }
-
-    clearTimeout(resetArmTimeout);
-    resetArmed = false;
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(USAGE_KEY);
-    resetBtn.textContent = "Progress cleared";
-    resetBtn.style.color = "";
-    renderDashboard();
-    setTimeout(() => { resetBtn.textContent = "Clear my saved progress"; }, 2000);
   });
+});
 
-  renderDashboard();
+/* BMI CALCULATOR */
+const bmiRing = document.getElementById('bmiRing');
+const CIRC = 2 * Math.PI * 52;
+bmiRing.setAttribute('stroke-dasharray', CIRC);
+document.getElementById('bmiCalcBtn').addEventListener('click', () => {
+  const h = parseFloat(document.getElementById('bmiHeight').value);
+  const w = parseFloat(document.getElementById('bmiWeight').value);
+  const catEl = document.getElementById('bmiCategory');
+  const noteEl = document.getElementById('bmiNote');
+  const numEl = document.getElementById('bmiNum');
+  if(!h || !w || h<=0 || w<=0){
+    catEl.textContent = 'Check your numbers';
+    noteEl.textContent = 'Please enter a valid height and weight.';
+    return;
+  }
+  const hM = h/100;
+  const bmi = w / (hM*hM);
+  numEl.textContent = bmi.toFixed(1);
+  let category, color, note, pct;
+  if(bmi < 18.5){ category='Underweight'; color='#7fd4ff'; note='Consider a strength & nutrition plan to build healthy mass.'; pct = bmi/40; }
+  else if(bmi < 25){ category='Healthy Range'; color='#43d17a'; note='Great range — keep training consistently to maintain it.'; pct = bmi/40; }
+  else if(bmi < 30){ category='Overweight'; color='#ff9466'; note='Our trainers can build a plan to bring this into range safely.'; pct = bmi/40; }
+  else { category='Obese'; color='#ff5a5a'; note='Talk to our trainers for a tailored, sustainable training plan.'; pct = bmi/40; }
+  pct = Math.min(pct, 1);
+  catEl.textContent = category;
+  catEl.style.color = color;
+  bmiRing.style.stroke = color;
+  noteEl.textContent = note;
+  bmiRing.style.strokeDashoffset = CIRC - (pct * CIRC);
+});
 
-})();
+/* CONTACT FORM */
+document.getElementById('contactForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const msg = document.getElementById('formMsg');
+  msg.classList.add('show');
+  this.reset();
+  setTimeout(() => msg.classList.remove('show'), 5000);
+});
 </script>
-
 </body>
 </html>
