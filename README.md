@@ -40,6 +40,12 @@ gym-website/
 ├── index.html
 ├── README.md
 └── favicon.png
+└── screenshots/
+    ├── home.png
+    ├── membership.png
+    └── bmi.png
+    └── trainer.png
+    └── contact.png
 ```
 
 ## 🎯 Purpose
